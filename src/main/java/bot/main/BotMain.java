@@ -26,6 +26,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import bot.entity.Userbot;
+import bot.service.answer.AddCategoryProductAnswer;
 import bot.service.answer.CategoryProductAnswer;
 import bot.service.answer.DescriptionProductAnswer;
 import bot.service.answer.NameProductAnswer;
@@ -167,6 +168,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				 */
 				if (call_data.equals("back_to_sell")) {
 					answerBotEnAfterBackToSell(session, chat_id, message_id);
+					session.setCategoryProductAnswerNull();
 				}
 				/*
 				 * call_data is 'back_to_main_menu'
@@ -226,14 +228,15 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				 */
 				if (call_data.equals("category")) {
 					answerBotEnAfterCategory(session, chat_id, message_id);
-					//session.setCategoryProductAnswer(new CategoryProductAnswer());
+					session.setCategoryProductAnswer(new CategoryProductAnswer());
+					session.createdCategoryForm();
 				}
 				/*
 				 * call_data is 'add_category'
 				 */
 				if (call_data.equals("add_category")) {
 					answerBotEnAfterAddCategory(session, chat_id, message_id);
-					//session.setCategoryProductAnswer(new CategoryProductAnswer());
+					session.setAddCategoryProductAnswer(new AddCategoryProductAnswer());
 				}
 
 			}
@@ -319,6 +322,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					if (session.hasDescriptionProductAnswer()) {
 						proccesInstanceProductFormSetDescription(session, text);
 						answerForBackToSellMenu(session, chat_id);
+					}
+					/*
+					 * hasCategoryProductAnswer
+					 */
+					if (session.hasCategoryProductAnswer()) {
+						if (session.hasAddCategoryProductAnswer()) {
+							proccesInstanceProductFormSetAddCategory(session, text, chat_id);
+						}
 					}
 
 				}
@@ -498,6 +509,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 	
+	private void answerBotEnAfterAddCategory(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterAddCategory(chat_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void answerBotEnAfterAddCategory(Session session, long chat_id, int message_id) {
 		try {
 			execute(session.answerBotEnAfterAddCategory(chat_id, message_id));
@@ -585,6 +604,17 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	private void proccesInstanceProductFormSetDescription(Session session, String text) {
 		session.getProductForm().setDescription(text);
 		session.setDescriptionProductAnswerNull();
+	}
+	
+	/*
+	 * Set add category product
+	 */
+	private void proccesInstanceProductFormSetAddCategory(Session session, String text, long chat_id) {
+		session.getCategoryForm().setName(text);
+		session.getCategoryForm().setUrl(text);
+		session.saveCategory(session.getCategoryForm());
+		session.setAddCategoryProductAnswerNull();
+		answerBotEnAfterAddCategory(session, chat_id);
 	}
 
 	/*

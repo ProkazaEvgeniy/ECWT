@@ -10,6 +10,7 @@ import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import bot.entity.Category;
 import bot.entity.Product;
 import bot.entity.Userbot;
+import bot.session.CategoryForm;
 import bot.session.ProductForm;
 import bot.session.UserbotForm;
 
@@ -19,6 +20,7 @@ public interface AdminService {
 	 * */
 	@Nonnull SendMessage answerBotStart(@Nonnull long chat_id);
 	@Nonnull SendMessage answerForBackToSellMenu(@Nonnull long chat_id);
+	@Nonnull SendMessage answerBotEnAfterAddCategory(@Nonnull long chat_id);
 	@Nonnull EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotEnAfterBackToSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
@@ -51,4 +53,5 @@ public interface AdminService {
 	 * category
 	 * */
 	@Nonnull List<Category> findAllCategory();
+	void saveCategory(CategoryForm categoryForm);
 }

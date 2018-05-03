@@ -36,6 +36,13 @@ public abstract class AbstractCreateAdminServiceImpl {
 		return product;
 	}
 	
+	protected Category createNewCategory (String name, String url) {
+		Category category = new Category();
+		category.setName(name);
+		category.setUrl(url);
+		return category;
+	}
+	
 	protected void setNullToProductForm (ProductForm productForm) {
 		productForm.setName(null);
 		productForm.setPrice(null);
@@ -59,6 +66,15 @@ public abstract class AbstractCreateAdminServiceImpl {
 			@Override
 			public void afterCommit() {
 				LOGGER.info("New product created: {}", product.getName());
+			}
+		});
+	}
+	
+	protected void showCategoryCreatedLogInfoIfTransactionSuccess(final Category category) {
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				LOGGER.info("New category created: {}", category.getName());
 			}
 		});
 	}

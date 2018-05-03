@@ -40,6 +40,8 @@ public class Session {
 	@Autowired
 	private ProductForm productForm;
 	@Autowired
+	private CategoryForm categoryForm;
+	@Autowired
 	private ImageStorageService imageStorageService;
 	private AnswerGenerator answerGenerator;
 	private EnAnswer enAnswer;
@@ -70,6 +72,10 @@ public class Session {
 
 	public SendMessage answerForBackToSellMenu(long chat_id) {
 		return adminService.answerForBackToSellMenu(chat_id);
+	}
+	
+	public SendMessage answerBotEnAfterAddCategory(long chat_id) {
+		return adminService.answerBotEnAfterAddCategory(chat_id);
 	}
 
 	public EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(long chat_id, int message_id) {
@@ -143,7 +149,14 @@ public class Session {
 	public void updateUserbotChooseLanguage(Integer id, String text) {
 		adminService.updateUserbotChooseLanguage(id, text);
 	}
-
+	
+	/*
+	 * service category
+	 * */
+	public void saveCategory(CategoryForm categoryForm) {
+		adminService.saveCategory(categoryForm);
+	}
+	
 	/*
 	 * service download file
 	 */
@@ -300,9 +313,14 @@ public class Session {
 		categoryProductAnswer = null;
 		LOGGER.info("****************** setCategoryProductAnswerNull");
 	}
+	
+	public void setAddCategoryProductAnswerNull() {
+		addCategoryProductAnswer = null;
+		LOGGER.info("****************** setAddCategoryProductAnswerNull");
+	}
 
 	/*
-	 * created model
+	 * created model ProductForm
 	 */
 	public ProductForm getProductForm() {
 		return productForm;
@@ -315,5 +333,21 @@ public class Session {
 	public void createdProductForm() {
 		setProductForm(new ProductForm());
 		LOGGER.info("****************** createdProductForm");
+	}
+	
+	/*
+	 * created model ProductForm
+	 */
+	public CategoryForm getCategoryForm() {
+		return categoryForm;
+	}
+
+	public void setCategoryForm (CategoryForm categoryForm) {
+		this.categoryForm = categoryForm;
+	}
+
+	public void createdCategoryForm() {
+		setCategoryForm(new CategoryForm());
+		LOGGER.info("****************** createdCategoryForm");
 	}
 }

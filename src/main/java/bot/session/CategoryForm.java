@@ -23,7 +23,7 @@ public class CategoryForm {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.toUpperCase();
 	}
 
 	public String getUrl() {
@@ -31,6 +31,6 @@ public class CategoryForm {
 	}
 
 	public void setUrl(String url) {
-		this.url = url;
+		this.url = "URL_"+ url.toUpperCase();
 	}
 }

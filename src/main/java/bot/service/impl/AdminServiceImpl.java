@@ -20,6 +20,7 @@ import bot.repository.storage.CategoryRepository;
 import bot.repository.storage.ProductRepository;
 import bot.repository.storage.UserbotRepository;
 import bot.service.AdminService;
+import bot.session.CategoryForm;
 import bot.session.ProductForm;
 import bot.session.UserbotForm;
 
@@ -67,6 +68,13 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		return mg;
 	}
 	
+	@Override
+	public SendMessage answerBotEnAfterAddCategory(long chat_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Ok! Category create");
+		mg.setReplyMarkup(allCategoryToInline());
+		LOGGER.info("---------------> SendMessage answerBotEnAfterAddCategory " + mg.toString());
+		return mg;
+	}
 
 	@Override
 	public EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(long chat_id, int message_id) {
@@ -282,22 +290,26 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
         //
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
         //
-        rowInline1.add(new InlineKeyboardButton().setText("+ Add category").setCallbackData("add_category"));
         // Set the keyboard to the markup
-        rowsInline.add(rowInline1);
 		for (Category category : findAllCategory()) {
 			List<InlineKeyboardButton> rowInline = new ArrayList<>();
 			rowInline.add(new InlineKeyboardButton().setText(category.getName().toUpperCase()).setCallbackData(category.getUrl()));
 			rowsInline.add(rowInline);
-			markupInline.setKeyboard(rowsInline);
 		}
+        //
+        rowInline1.add(new InlineKeyboardButton().setText("<- Back").setCallbackData("back_to_sell"));
+        rowInline1.add(new InlineKeyboardButton().setText("+ Add category").setCallbackData("add_category"));
+        rowsInline.add(rowInline1);
+		markupInline.setKeyboard(rowsInline);
 		return markupInline;
 	}
 	
 	@Override
 	public EditMessageText answerBotEnAfterAddCategory(long chat_id, int message_id) {
-		// TODO Auto-generated method stub
-		return null;
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Ok! Write category name");
+		LOGGER.info("---------------> SendMessage answerBotEnAfterAddCategory " + mg.toString());
+		return mg;
 	}
 
 	/*
@@ -354,5 +366,13 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	@Override
 	public List<Category> findAllCategory() {
 		return categoryRepository.findAll();
+	}
+	
+	@Override
+	@Transactional
+	public void saveCategory(CategoryForm categoryForm) {
+		Category category = createNewCategory(categoryForm.getName(), categoryForm.getUrl());
+		showCategoryCreatedLogInfoIfTransactionSuccess(category);
+		categoryRepository.save(category);
 	}
 }
