@@ -43,13 +43,13 @@ public abstract class AbstractCreateAdminServiceImpl {
 		return category;
 	}
 	
-	protected void setNullToProductForm (ProductForm productForm) {
+	protected void setNullToProductFormSuper (ProductForm productForm) {
 		productForm.setName(null);
 		productForm.setPrice(null);
 		productForm.setPhoto(null);
 		productForm.setDescription(null);
 		productForm.setCategory(null);
-		productForm.setUserbot(null);
+		LOGGER.info("***************************  setNull To ProductForm Super");
 	}
 	
 	protected void showUserbotCreatedLogInfoIfTransactionSuccess(final Userbot userbot) {

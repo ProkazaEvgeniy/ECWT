@@ -68,6 +68,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		return mg;
 	}
 	
+	
+	
 	@Override
 	public SendMessage answerBotEnAfterAddCategory(long chat_id) {
 		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Ok! Category create");
@@ -171,6 +173,14 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 	
 	@Override
+	public EditMessageText answerForNoCompleteProductForm(long chat_id, int message_id) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id).setText("Sorry, your no complete form product. Please finish it and set CREATE");
+		mg.setReplyMarkup(backToSell());
+		LOGGER.info("---------------> SendMessage answerForNoCompleteProductForm " + mg.toString());
+		return mg;
+	}
+	
+	@Override
 	public EditMessageText answerBotEnAfterBackToSell(long chat_id, int message_id, ProductForm productForm) {
 		return answerBotEnAfterSell(chat_id, message_id, productForm);
 	}
@@ -206,7 +216,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 	
 	@Override
-	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id, ProductForm productForm) {
+	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
 		SendMessage mg = new SendMessage().setChatId(chat_id).setText(productForm.toString());
 		mg.setReplyMarkup(OK_NO_created_SaveToDB_InlineKeyboardMarkup());
 		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin " + mg.toString());
@@ -230,8 +240,10 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	
 	@Override
 	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id, ProductForm productForm) {
-		
-		return null;
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id).setText("Your product sent Admin check to validate");
+		mg.setReplyMarkup(BUY_SELL());
+		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct " + mg.toString());
+		return mg;
 	}
 	
 	@Override
@@ -284,6 +296,15 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		return mg;
 	}
 	
+	@Override
+	public EditMessageText answerBotEnAfterChooseCategory(long chat_id, int message_id) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Ok! Category complite");
+		mg.setReplyMarkup(backToSell());
+		LOGGER.info("---------------> SendMessage answerBotEnAfterChooseCategory " + mg.toString());
+		return mg;
+	}
+	
 	private InlineKeyboardMarkup allCategoryToInline() {
 		InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
@@ -317,10 +338,10 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	 */
 	@Override
 	@Transactional
-	public void saveUserbot(UserbotForm userbotForm) {
+	public Userbot saveUserbot(UserbotForm userbotForm) {
 		Userbot userbot = createNewUserbot(userbotForm.getIdT(), userbotForm.getFirstName(), userbotForm.getLastName(), userbotForm.getUserName(), userbotForm.getHasBot(), userbotForm.getLanguageCode());
 		showUserbotCreatedLogInfoIfTransactionSuccess(userbot);
-		userbotRepository.save(userbot);
+		return userbotRepository.save(userbot);
 	}
 
 	@Override
@@ -360,6 +381,11 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		productRepository.save(product);
 	}
 	
+	@Override
+	public void setNullToProductForm(ProductForm productForm) {
+		setNullToProductFormSuper(productForm);
+	}
+	
 	/*
 	 * category
 	 * */
@@ -374,5 +400,10 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		Category category = createNewCategory(categoryForm.getName(), categoryForm.getUrl());
 		showCategoryCreatedLogInfoIfTransactionSuccess(category);
 		categoryRepository.save(category);
+	}
+	
+	@Override
+	public Category findByUrl(String text) {
+		return categoryRepository.findByUrl(text);
 	}
 }

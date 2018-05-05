@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 
+import bot.entity.Category;
 import bot.entity.Userbot;
 import bot.service.AdminService;
 import bot.service.ImageStorageService;
@@ -74,6 +75,10 @@ public class Session {
 		return adminService.answerForBackToSellMenu(chat_id);
 	}
 	
+	public EditMessageText answerForNoCompleteProductForm(long chat_id, int message_id) {
+		return adminService.answerForNoCompleteProductForm(chat_id, message_id);
+	}
+
 	public SendMessage answerBotEnAfterAddCategory(long chat_id) {
 		return adminService.answerBotEnAfterAddCategory(chat_id);
 	}
@@ -98,9 +103,8 @@ public class Session {
 		return adminService.answerBotEnAfterCreateProduct(chat_id, message_id, productForm);
 	}
 
-	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id,
-			ProductForm productForm) {
-		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, productForm);
+	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
+		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, productForm);
 	}
 
 	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id, ProductForm productForm) {
@@ -131,6 +135,10 @@ public class Session {
 		return adminService.answerBotEnAfterCategory(chat_id, message_id);
 	}
 
+	public EditMessageText answerBotEnAfterChooseCategory(long chat_id, int message_id) {
+		return adminService.answerBotEnAfterChooseCategory(chat_id, message_id);
+	}
+
 	public EditMessageText answerBotEnAfterAddCategory(long chat_id, int message_id) {
 		return adminService.answerBotEnAfterAddCategory(chat_id, message_id);
 	}
@@ -142,21 +150,25 @@ public class Session {
 		return adminService.findByIDT(id);
 	}
 
-	public void saveUserbot(UserbotForm userbotForm) {
-		adminService.saveUserbot(userbotForm);
+	public Userbot saveUserbot(UserbotForm userbotForm) {
+		return adminService.saveUserbot(userbotForm);
 	}
 
 	public void updateUserbotChooseLanguage(Integer id, String text) {
 		adminService.updateUserbotChooseLanguage(id, text);
 	}
-	
+
 	/*
 	 * service category
-	 * */
+	 */
 	public void saveCategory(CategoryForm categoryForm) {
 		adminService.saveCategory(categoryForm);
 	}
-	
+
+	public Category findByUrl(String text) {
+		return adminService.findByUrl(text);
+	}
+
 	/*
 	 * service download file
 	 */
@@ -313,7 +325,7 @@ public class Session {
 		categoryProductAnswer = null;
 		LOGGER.info("****************** setCategoryProductAnswerNull");
 	}
-	
+
 	public void setAddCategoryProductAnswerNull() {
 		addCategoryProductAnswer = null;
 		LOGGER.info("****************** setAddCategoryProductAnswerNull");
@@ -334,7 +346,13 @@ public class Session {
 		setProductForm(new ProductForm());
 		LOGGER.info("****************** createdProductForm");
 	}
-	
+
+	public boolean hasCompleteProductForm() {
+		return getProductForm().getName() != null && getProductForm().getPrice() != null
+				&& getProductForm().getPhoto() != null && getProductForm().getDescription() != null
+				&& getProductForm().getCategory() != null;
+	}
+
 	/*
 	 * created model ProductForm
 	 */
@@ -342,12 +360,23 @@ public class Session {
 		return categoryForm;
 	}
 
-	public void setCategoryForm (CategoryForm categoryForm) {
+	public void setCategoryForm(CategoryForm categoryForm) {
 		this.categoryForm = categoryForm;
 	}
 
 	public void createdCategoryForm() {
 		setCategoryForm(new CategoryForm());
 		LOGGER.info("****************** createdCategoryForm");
+	}
+
+	/*
+	 * get set adminService
+	 */
+	public AdminService getAdminService() {
+		return adminService;
+	}
+
+	public void setAdminService(AdminService adminService) {
+		this.adminService = adminService;
 	}
 }

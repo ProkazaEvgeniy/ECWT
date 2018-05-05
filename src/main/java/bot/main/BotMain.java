@@ -25,6 +25,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import bot.entity.Category;
 import bot.entity.Userbot;
 import bot.service.answer.AddCategoryProductAnswer;
 import bot.service.answer.CategoryProductAnswer;
@@ -161,7 +162,6 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				 */
 				if (call_data.equals("sell")) {
 					answerBotEnAfterSell(session, chat_id, message_id);
-					session.setProductAnswer(new ProductAnswer());
 				}
 				/*
 				 * call_data is 'back_to_sell'
@@ -180,20 +180,28 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				 * call_data is 'create_product'
 				 */
 				if (call_data.equals("create_product")) {
-					answerBotEnAfterCreateProduct(session, chat_id, message_id);
+					if(session.hasCompleteProductForm()) {
+						answerBotEnAfterCreateProduct(session, chat_id, message_id);						
+					} else {
+						answerForNoCompleteProductForm(session, chat_id, message_id);
+					}
 				}
 				/*
 				 * call_data is 'ok_created'
 				 */
 				if (call_data.equals("ok_created")) {
-					answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id, message_id);
-					answerBotEnAfterOKCreateProduct(session, chat_id, message_id);
+					long chat_id_admin = Long.parseLong(idAdmin);
+					answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id_admin);
+					if(chat_id != chat_id_admin) {
+						answerBotEnAfterOKCreateProduct(session, chat_id, message_id);						
+					}
 				}
 				/*
 				 * call_data is 'no_created'
 				 */
 				if (call_data.equals("no_created")) {
 					answerBotEnAfterNOCreateProduct(session, chat_id, message_id);
+					setNullToProductForm(session);
 				}
 				/*
 				 * call_data is 'name_product'
@@ -230,6 +238,13 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					answerBotEnAfterCategory(session, chat_id, message_id);
 					session.setCategoryProductAnswer(new CategoryProductAnswer());
 					session.createdCategoryForm();
+				}
+				/*
+				 * call_data is 'category'
+				 */
+				if (call_data.startsWith("URL_")) {
+					proccesInstanceProductFormChooseCategory(session, call_data, chat_id);
+					answerBotEnAfterChooseCategory(session, chat_id, message_id);
 				}
 				/*
 				 * call_data is 'add_category'
@@ -404,6 +419,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			e.printStackTrace();
 		}
 	}
+	
+	private void answerForNoCompleteProductForm(Session session, long chat_id, int message_id) {
+		try {
+			execute(session.answerForNoCompleteProductForm(chat_id, message_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void answerBotAfterChooseLanguageEnBuyOrSell(Session session, long chat_id, int message_id) {
 		try {
@@ -437,9 +460,9 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 	
-	private void answerBotEnAfterOKCreateProduct_To_CheckAdmin(Session session, long chat_id, int message_id) {
+	private void answerBotEnAfterOKCreateProduct_To_CheckAdmin(Session session, long chat_id) {
 		try {
-			execute(session.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, session.getProductForm()));
+			execute(session.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, session.getProductForm()));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
@@ -509,6 +532,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 	
+	private void answerBotEnAfterChooseCategory(Session session, long chat_id, int message_id) {
+		try {
+			execute(session.answerBotEnAfterChooseCategory(chat_id, message_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void answerBotEnAfterAddCategory(Session session, long chat_id) {
 		try {
 			execute(session.answerBotEnAfterAddCategory(chat_id));
@@ -534,8 +565,16 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			UserbotForm userbotForm = new UserbotForm(message.getFrom().getId(), message.getFrom().getFirstName(),
 					message.getFrom().getLastName(), message.getFrom().getUserName(), message.getFrom().getBot(),
 					message.getFrom().getLanguageCode());
-			session.saveUserbot(userbotForm);
+			userbot = session.saveUserbot(userbotForm);
+			setUserbotToProductForm(session, userbot);
+		} else {
+			setUserbotToProductForm(session, userbot);
 		}
+	}
+	
+	private void setUserbotToProductForm(Session session, Userbot userbot) {
+		session.setProductAnswer(new ProductAnswer());
+		session.getProductForm().setUserbot(userbot);
 	}
 
 	/*
@@ -558,7 +597,6 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	 * Set photo product
 	 */
 	private void proccesInstanceProductFormSetPhoto(Session session, PhotoSize photo) {
-		
 		java.io.File tempImageFile = downloadPhotoByFilePath(getFilePath(photo));
 		String imageLink = session.processNewProductPhoto(tempImageFile);
 		session.getProductForm().setPhoto(imageLink);
@@ -615,6 +653,21 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		session.saveCategory(session.getCategoryForm());
 		session.setAddCategoryProductAnswerNull();
 		answerBotEnAfterAddCategory(session, chat_id);
+	}
+	
+	/*
+	 * Set choose category product
+	 */
+	private void proccesInstanceProductFormChooseCategory(Session session, String text, long chat_id) {
+		Category category = session.findByUrl(text);
+		session.getProductForm().setCategory(category);
+	}
+	
+	/*
+	 * Set null to product form product
+	 */
+	private void setNullToProductForm(Session session) {
+		session.getAdminService().setNullToProductForm(session.getProductForm());
 	}
 
 	/*
