@@ -73,6 +73,10 @@ public class Session {
 		return adminService.answerBotStart(chat_id);
 	}
 	
+	public EditMessageText answerAnythingTextToCallbackQuery(long chat_id, int message_id_previous) {
+		return adminService.answerAnythingTextToCallbackQuery(chat_id, message_id_previous);
+	}
+	
 	public EditMessageText answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
 		return adminService.answerOkToCreateProductFromAdmin(chat_id, message_id);
 	}
@@ -96,7 +100,11 @@ public class Session {
 	public EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(long chat_id, int message_id) {
 		return adminService.answerBotAfterChooseLanguageEnBuyOrSell(chat_id, message_id);
 	}
-
+	
+	public EditMessageText answerBotEnAfterBuy(long chat_id, int message_id, ProductForm productForm) {
+		return adminService.answerBotEnAfterBuy(chat_id, message_id);
+	}
+	
 	public EditMessageText answerBotEnAfterSell(long chat_id, int message_id, ProductForm productForm) {
 		return adminService.answerBotEnAfterSell(chat_id, message_id, productForm);
 	}

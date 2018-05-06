@@ -22,11 +22,13 @@ public interface AdminService {
 	@Nonnull SendMessage answerBotStart(@Nonnull long chat_id);
 	@Nonnull SendMessage answerForBackToSellMenu(@Nonnull long chat_id);
 	@Nonnull SendMessage answerBotEnAfterAddCategory(@Nonnull long chat_id);
+	@Nonnull EditMessageText answerAnythingTextToCallbackQuery(@Nonnull long chat_id, int message_id_previous);
 	@Nonnull EditMessageText answerNoToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerOkToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
+	@Nonnull EditMessageText answerBotEnAfterBuy(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterBackToSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotEnAfterBackToMainMenu(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterCreateProduct(@Nonnull long chat_id, int message_id, ProductForm productForm);

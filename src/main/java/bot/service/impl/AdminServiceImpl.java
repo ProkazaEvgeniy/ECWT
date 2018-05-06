@@ -60,7 +60,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotStart " + mg.toString());
 		return mg;
 	}
-
+	
 	@Override
 	public SendMessage answerForBackToSellMenu(long chat_id) {
 		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Ok!");
@@ -85,6 +85,13 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotAfterChooseLanguageEnBuyOrSell " + mg.toString());
 		return mg;
 	}
+	
+	@Override
+	public EditMessageText answerAnythingTextToCallbackQuery(long chat_id, int message_id_previous) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id_previous)
+				.setText("Message delete");
+		return mg;
+	}
 
 	private InlineKeyboardMarkup BUY_SELL() {
 		InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
@@ -101,6 +108,31 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		// Add it to the message
 		markupInline.setKeyboard(rowsInline);
 		return markupInline;
+	}
+
+	@Override
+	public EditMessageText answerBotEnAfterBuy(long chat_id, int message_id) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Ok, you choose buy. Please select how me find your product?");
+		InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+		//
+		List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
+		List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
+		//
+		rowInline1.add(new InlineKeyboardButton().setText("Find by name or description").setCallbackData("find"));
+		rowInline2.add(new InlineKeyboardButton().setText("Find by category").setCallbackData("find_by_category"));
+		rowInline3.add(new InlineKeyboardButton().setText("<- Back menu").setCallbackData("back_to_main_menu"));
+		// Set the keyboard to the markup
+		rowsInline.add(rowInline1);
+		rowsInline.add(rowInline2);
+		rowsInline.add(rowInline3);
+		// Add it to the message
+		markupInline.setKeyboard(rowsInline);
+		mg.setReplyMarkup(markupInline);
+		LOGGER.info("---------------> SendMessage answerBotEnAfterBuy " + mg.toString());
+		return mg;
 	}
 
 	@Override
@@ -187,10 +219,11 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerForNoCompleteProductForm " + mg.toString());
 		return mg;
 	}
-	
+
 	@Override
 	public EditMessageText answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
-		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id).setText("Your product not created. Sorry.");
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Your product not created. Sorry.");
 		mg.setReplyMarkup(backToSell());
 		LOGGER.info("---------------> SendMessage answerOkToCreateProductFromAdmin " + mg.toString());
 		return mg;
