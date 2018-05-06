@@ -12,6 +12,7 @@ import bot.entity.Product;
 import bot.entity.Userbot;
 import bot.session.CategoryForm;
 import bot.session.ProductForm;
+import bot.session.ProductFormToCheckAdmin;
 import bot.session.UserbotForm;
 
 public interface AdminService {
@@ -21,7 +22,9 @@ public interface AdminService {
 	@Nonnull SendMessage answerBotStart(@Nonnull long chat_id);
 	@Nonnull SendMessage answerForBackToSellMenu(@Nonnull long chat_id);
 	@Nonnull SendMessage answerBotEnAfterAddCategory(@Nonnull long chat_id);
-	@Nonnull SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(@Nonnull long chat_id, ProductForm productForm);
+	@Nonnull EditMessageText answerNoToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
+	@Nonnull EditMessageText answerOkToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
+	@Nonnull EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotEnAfterBackToSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
@@ -48,9 +51,10 @@ public interface AdminService {
 	/*
 	 * product
 	 * */
-	void saveProduct(ProductForm productForm);
+	long saveProduct(ProductFormToCheckAdmin productFormToCheckAdmin);
 	@Nonnull Product findByPhoto(String photo);
 	void setNullToProductForm(ProductForm productForm);
+	void setNullToProductFormToCheckAdmin(ProductFormToCheckAdmin productFormToCheckAdmin);
 	
 	/*
 	 * category

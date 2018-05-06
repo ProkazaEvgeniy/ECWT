@@ -41,6 +41,8 @@ public class Session {
 	@Autowired
 	private ProductForm productForm;
 	@Autowired
+	private ProductFormToCheckAdmin productFormToCheckAdmin;
+	@Autowired
 	private CategoryForm categoryForm;
 	@Autowired
 	private ImageStorageService imageStorageService;
@@ -69,6 +71,14 @@ public class Session {
 	 */
 	public SendMessage answerForStart(long chat_id) {
 		return adminService.answerBotStart(chat_id);
+	}
+	
+	public EditMessageText answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
+		return adminService.answerOkToCreateProductFromAdmin(chat_id, message_id);
+	}
+	
+	public EditMessageText answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
+		return adminService.answerNoToCreateProductFromAdmin(chat_id, message_id);
 	}
 
 	public SendMessage answerForBackToSellMenu(long chat_id) {
@@ -103,8 +113,8 @@ public class Session {
 		return adminService.answerBotEnAfterCreateProduct(chat_id, message_id, productForm);
 	}
 
-	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
-		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, productForm);
+	public EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id, ProductForm productForm) {
+		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, productForm);
 	}
 
 	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id, ProductForm productForm) {
@@ -156,6 +166,13 @@ public class Session {
 
 	public void updateUserbotChooseLanguage(Integer id, String text) {
 		adminService.updateUserbotChooseLanguage(id, text);
+	}
+	
+	/*
+	 * service product
+	 * */
+	public long saveProduct(ProductFormToCheckAdmin productFormToCheckAdmin) {
+		return adminService.saveProduct(productFormToCheckAdmin);
 	}
 
 	/*
@@ -354,7 +371,35 @@ public class Session {
 	}
 
 	/*
-	 * created model ProductForm
+	 * created model ProductFormToCheckAdmin
+	 */
+	public ProductFormToCheckAdmin getProductFormToCheckAdmin() {
+		return productFormToCheckAdmin;
+	}
+
+	public void setProductFormToCheckAdmin(ProductFormToCheckAdmin productFormToCheckAdmin) {
+		this.productFormToCheckAdmin = productFormToCheckAdmin;
+	}
+
+	public void createdProductFormToCheckAdmin() {
+		setProductFormToCheckAdmin(new ProductFormToCheckAdmin());
+		LOGGER.info("****************** ProductFormToCheckAdmin");
+	}
+	
+	public void copyProductFormToProductFormToCheckAdmin() {
+		ProductForm productForm = getProductForm();
+		ProductFormToCheckAdmin productFormToCheckAdmin = getProductFormToCheckAdmin();
+		productFormToCheckAdmin.setName(productForm.getName());
+		productFormToCheckAdmin.setPrice(productForm.getPrice());
+		productFormToCheckAdmin.setPhoto(productForm.getPhoto());
+		productFormToCheckAdmin.setDescription(productForm.getDescription());
+		productFormToCheckAdmin.setCategory(productForm.getCategory());
+		productFormToCheckAdmin.setUserbot(productForm.getUserbot());
+		LOGGER.info("****************** copyProductFormToProductFormToCheckAdmin complete");
+	}
+	
+	/*
+	 * created model CategoryForm
 	 */
 	public CategoryForm getCategoryForm() {
 		return categoryForm;

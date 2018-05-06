@@ -9,6 +9,7 @@ import bot.entity.Category;
 import bot.entity.Product;
 import bot.entity.Userbot;
 import bot.session.ProductForm;
+import bot.session.ProductFormToCheckAdmin;
 
 public abstract class AbstractCreateAdminServiceImpl {
 
@@ -50,6 +51,16 @@ public abstract class AbstractCreateAdminServiceImpl {
 		productForm.setDescription(null);
 		productForm.setCategory(null);
 		LOGGER.info("***************************  setNull To ProductForm Super");
+	}
+	
+	protected void setNullToProductFormToCheckAdminSuper (ProductFormToCheckAdmin productFormToCheckAdmin) {
+		productFormToCheckAdmin.setName(null);
+		productFormToCheckAdmin.setPrice(null);
+		productFormToCheckAdmin.setPhoto(null);
+		productFormToCheckAdmin.setDescription(null);
+		productFormToCheckAdmin.setCategory(null);
+		productFormToCheckAdmin.setUserbot(null);
+		LOGGER.info("***************************  setNull To ProductFormToCheckAdmin Super");
 	}
 	
 	protected void showUserbotCreatedLogInfoIfTransactionSuccess(final Userbot userbot) {

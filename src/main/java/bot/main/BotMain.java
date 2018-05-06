@@ -191,10 +191,21 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				 */
 				if (call_data.equals("ok_created")) {
 					long chat_id_admin = Long.parseLong(idAdmin);
-					answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id_admin);
+					proccesCopyProductFormToProductFormToCheckAdmin(session);
 					if(chat_id != chat_id_admin) {
-						answerBotEnAfterOKCreateProduct(session, chat_id, message_id);						
+						answerBotEnAfterOKCreateProduct(session, chat_id, message_id);
+					} else {
+						answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id_admin, message_id);						
 					}
+					setNullToProductForm(session);
+				}
+				/*
+				 * call_data is 'ok_created_db'
+				 */
+				if (call_data.equals("ok_created_db")) {
+					long chat_id_answer = proccesSaveProductToBD(session);
+					answerOkToCreateProductFromAdmin(session, chat_id_answer, message_id);
+					setNullToProductFormToCheckAdmin(session);
 				}
 				/*
 				 * call_data is 'no_created'
@@ -202,6 +213,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				if (call_data.equals("no_created")) {
 					answerBotEnAfterNOCreateProduct(session, chat_id, message_id);
 					setNullToProductForm(session);
+				}
+				/*
+				 * call_data is 'no_created_db'
+				 */
+				if (call_data.equals("no_created_db")) {
+					long chat_id_answer = getLongIdToAnswerUserbot(session);
+					answerNoToCreateProductFromAdmin(session, chat_id_answer, message_id);
+					setNullToProductFormToCheckAdmin(session);
 				}
 				/*
 				 * call_data is 'name_product'
@@ -274,6 +293,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	/*
 	 * end handleCallbackQueryMessage
 	 */
+
 
 	/*
 	 * handleTextMessage
@@ -412,6 +432,22 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 	
+	private void answerOkToCreateProductFromAdmin(Session session, long chat_id, int message_id) {
+		try {
+			execute(session.answerOkToCreateProductFromAdmin(chat_id, message_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void answerNoToCreateProductFromAdmin(Session session, long chat_id, int message_id) {
+		try {
+			execute(session.answerNoToCreateProductFromAdmin(chat_id, message_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void answerForBackToSellMenu(Session session, long chat_id) {
 		try {
 			execute(session.answerForBackToSellMenu(chat_id));
@@ -460,9 +496,9 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 	
-	private void answerBotEnAfterOKCreateProduct_To_CheckAdmin(Session session, long chat_id) {
+	private void answerBotEnAfterOKCreateProduct_To_CheckAdmin(Session session, long chat_id, int message_id) {
 		try {
-			execute(session.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, session.getProductForm()));
+			execute(session.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, session.getProductForm()));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
@@ -664,12 +700,41 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	}
 	
 	/*
-	 * Set null to product form product
+	 * Set null to product form
 	 */
 	private void setNullToProductForm(Session session) {
 		session.getAdminService().setNullToProductForm(session.getProductForm());
 	}
-
+	
+	/*
+	 * Set null to product form ToCheckAdmin
+	 */
+	private void setNullToProductFormToCheckAdmin(Session session) {
+		session.getAdminService().setNullToProductFormToCheckAdmin(session.getProductFormToCheckAdmin());
+	}
+	
+	/*
+	 * process Copy Product Form To Product Form To CheckAdmin
+	 * */
+	private void proccesCopyProductFormToProductFormToCheckAdmin(Session session) {
+		session.createdProductFormToCheckAdmin();
+		session.copyProductFormToProductFormToCheckAdmin();
+	}
+	
+	/*
+	 * process Save Product To BD
+	 * */
+	private long proccesSaveProductToBD(Session session) {
+		return session.saveProduct(session.getProductFormToCheckAdmin());
+	}
+	
+	/*
+	 * 
+	 * */
+	private long getLongIdToAnswerUserbot(Session session) {
+		return session.getProductFormToCheckAdmin().getUserbot().getIdT();
+	}
+	
 	/*
 	 * 
 	 * */
