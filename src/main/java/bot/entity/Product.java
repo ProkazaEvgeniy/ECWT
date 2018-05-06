@@ -36,7 +36,7 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 
 	// bi-directional many-to-one association to Category
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_category", nullable = false)
+	@JoinColumn(name = "id_category", referencedColumnName = "id")
 	private Category category;
 	// bi-directional many-to-one association to Userbot
 	@ManyToOne

@@ -23,8 +23,9 @@ public interface AdminService {
 	@Nonnull SendMessage answerForBackToSellMenu(@Nonnull long chat_id);
 	@Nonnull SendMessage answerBotEnAfterAddCategory(@Nonnull long chat_id);
 	@Nonnull EditMessageText answerAnythingTextToCallbackQuery(@Nonnull long chat_id, int message_id_previous);
-	@Nonnull EditMessageText answerNoToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
-	@Nonnull EditMessageText answerOkToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
+	@Nonnull SendMessage answerNoToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
+	@Nonnull SendMessage answerOkToCreateProductFromAdmin(@Nonnull long chat_id, int message_id);
+	@Nonnull SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(@Nonnull long chat_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterSell(@Nonnull long chat_id, int message_id, ProductForm productForm);

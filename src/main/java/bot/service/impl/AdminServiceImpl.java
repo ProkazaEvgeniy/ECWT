@@ -60,7 +60,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotStart " + mg.toString());
 		return mg;
 	}
-	
+
 	@Override
 	public SendMessage answerForBackToSellMenu(long chat_id) {
 		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Ok!");
@@ -85,7 +85,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotAfterChooseLanguageEnBuyOrSell " + mg.toString());
 		return mg;
 	}
-	
+
 	@Override
 	public EditMessageText answerAnythingTextToCallbackQuery(long chat_id, int message_id_previous) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id_previous)
@@ -221,9 +221,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 
 	@Override
-	public EditMessageText answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
-		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText("Your product not created. Sorry.");
+	public SendMessage answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Sorry. But Your product not created.");
 		mg.setReplyMarkup(backToSell());
 		LOGGER.info("---------------> SendMessage answerOkToCreateProductFromAdmin " + mg.toString());
 		return mg;
@@ -264,10 +263,17 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 
 	@Override
+	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText(productForm.toString());
+		mg.setReplyMarkup(OK_NO_created_SaveToDB_InlineKeyboardMarkup());
+		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin " + mg.toString());
+		return mg;
+	}
+	
+	@Override
 	public EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id,
 			ProductForm productForm) {
-		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText(productForm.toString());
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id).setText(productForm.toString());
 		mg.setReplyMarkup(OK_NO_created_SaveToDB_InlineKeyboardMarkup());
 		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin " + mg.toString());
 		return mg;
@@ -292,7 +298,6 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id, ProductForm productForm) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
 				.setText("Your product sent Admin check to validate");
-		mg.setReplyMarkup(BUY_SELL());
 		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct " + mg.toString());
 		return mg;
 	}
@@ -308,9 +313,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 
 	@Override
-	public EditMessageText answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
-		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText("Your product has created. Find him across BUY");
+	public SendMessage answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Your product has created. Find him across BUY");
 		mg.setReplyMarkup(BUY_SELL());
 		LOGGER.info("---------------> SendMessage answerOkToCreateProductFromAdmin " + mg.toString());
 		return mg;

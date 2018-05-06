@@ -41,8 +41,6 @@ public class Session {
 	@Autowired
 	private ProductForm productForm;
 	@Autowired
-	private ProductFormToCheckAdmin productFormToCheckAdmin;
-	@Autowired
 	private CategoryForm categoryForm;
 	@Autowired
 	private ImageStorageService imageStorageService;
@@ -77,11 +75,11 @@ public class Session {
 		return adminService.answerAnythingTextToCallbackQuery(chat_id, message_id_previous);
 	}
 	
-	public EditMessageText answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
+	public SendMessage answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
 		return adminService.answerOkToCreateProductFromAdmin(chat_id, message_id);
 	}
 	
-	public EditMessageText answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
+	public SendMessage answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
 		return adminService.answerNoToCreateProductFromAdmin(chat_id, message_id);
 	}
 
@@ -121,6 +119,10 @@ public class Session {
 		return adminService.answerBotEnAfterCreateProduct(chat_id, message_id, productForm);
 	}
 
+	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
+		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, productForm);
+	}
+	
 	public EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id, ProductForm productForm) {
 		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, productForm);
 	}
@@ -376,34 +378,6 @@ public class Session {
 		return getProductForm().getName() != null && getProductForm().getPrice() != null
 				&& getProductForm().getPhoto() != null && getProductForm().getDescription() != null
 				&& getProductForm().getCategory() != null;
-	}
-
-	/*
-	 * created model ProductFormToCheckAdmin
-	 */
-	public ProductFormToCheckAdmin getProductFormToCheckAdmin() {
-		return productFormToCheckAdmin;
-	}
-
-	public void setProductFormToCheckAdmin(ProductFormToCheckAdmin productFormToCheckAdmin) {
-		this.productFormToCheckAdmin = productFormToCheckAdmin;
-	}
-
-	public void createdProductFormToCheckAdmin() {
-		setProductFormToCheckAdmin(new ProductFormToCheckAdmin());
-		LOGGER.info("****************** ProductFormToCheckAdmin");
-	}
-	
-	public void copyProductFormToProductFormToCheckAdmin() {
-		ProductForm productForm = getProductForm();
-		ProductFormToCheckAdmin productFormToCheckAdmin = getProductFormToCheckAdmin();
-		productFormToCheckAdmin.setName(productForm.getName());
-		productFormToCheckAdmin.setPrice(productForm.getPrice());
-		productFormToCheckAdmin.setPhoto(productForm.getPhoto());
-		productFormToCheckAdmin.setDescription(productForm.getDescription());
-		productFormToCheckAdmin.setCategory(productForm.getCategory());
-		productFormToCheckAdmin.setUserbot(productForm.getUserbot());
-		LOGGER.info("****************** copyProductFormToProductFormToCheckAdmin complete");
 	}
 	
 	/*
