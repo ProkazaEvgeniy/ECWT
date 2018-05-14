@@ -54,6 +54,7 @@ public interface AdminService {
 	/*
 	 * product
 	 * */
+	void deleteProduct(@Nonnull Long idProduct);
 	long saveProduct(ProductFormToCheckAdmin productFormToCheckAdmin);
 	@Nonnull Product findByPhoto(String photo);
 	void setNullToProductForm(ProductForm productForm);
@@ -65,4 +66,9 @@ public interface AdminService {
 	@Nonnull List<Category> findAllCategory();
 	void saveCategory(CategoryForm categoryForm);
 	Category findByUrl(String text);
+	
+	/*
+	 * 
+	 * */
+	@Nonnull Iterable<Product> findAllForIndexing();
 }

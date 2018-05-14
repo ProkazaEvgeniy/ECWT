@@ -276,7 +276,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		/*
 		 * call_data is 'ok_created_db'
 		 */
-		else if (call_data.equals("ok_created_db")) {
+		if (call_data.equals("ok_created_db")) {
 			long chat_id_answer = proccesSaveProductToBD(session);
 			answerOkToCreateProductFromAdmin(session, chat_id_answer, message_id);
 			setNullToProductFormToCheckAdmin(session);

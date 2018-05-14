@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -16,6 +18,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import bot.entity.Category;
 import bot.entity.Product;
 import bot.entity.Userbot;
+import bot.repository.search.ProductSearchRepository;
 import bot.repository.storage.CategoryRepository;
 import bot.repository.storage.ProductRepository;
 import bot.repository.storage.UserbotRepository;
@@ -34,6 +37,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	private UserbotRepository userbotRepository;
 	@Autowired
 	private ProductRepository productRepository;
+	@Autowired
+	private ProductSearchRepository productSearchRepository;
 	@Autowired
 	private CategoryRepository categoryRepository;
 
@@ -121,7 +126,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
 		List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
 		//
-		rowInline1.add(new InlineKeyboardButton().setText("Find by name or description").setCallbackData("find"));
+		rowInline1.add(new InlineKeyboardButton().setText("Find by name or description").setCallbackData("find_by_name_or_description"));
 		rowInline2.add(new InlineKeyboardButton().setText("Find by category").setCallbackData("find_by_category"));
 		rowInline3.add(new InlineKeyboardButton().setText("<- Back menu").setCallbackData("back_to_main_menu"));
 		// Set the keyboard to the markup
@@ -437,6 +442,14 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	 * product
 	 */
 	@Override
+	@Transactional
+	public void deleteProduct(Long idProduct) {
+		Product product = productRepository.findOne(idProduct);
+		productRepository.delete(product);
+		removeCocktailIndexIfTransactionSuccess(product);
+	}
+	
+	@Override
 	public Product findByPhoto(String photo) {
 		return productRepository.findByPhoto(photo);
 	}
@@ -482,5 +495,41 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	@Override
 	public Category findByUrl(String text) {
 		return categoryRepository.findByUrl(text);
+	}
+	
+	/*
+	 * 
+	 * */
+	@Override
+	@Transactional
+	public Iterable<Product> findAllForIndexing() {
+		Iterable<Product> all = productRepository.findAll();
+		return all;
+	}
+	
+	protected void updateIndexProductData(Long idProduct, Product loaderProduct) {
+		Product p = productRepository.findOne(idProduct);
+		if (p == null) {
+			createNewProductIndex(loaderProduct);
+		} else {
+			productSearchRepository.save(p);
+			LOGGER.info("Product index updated");
+		}
+	}
+
+	protected void createNewProductIndex(Product loaderProduct) {
+		productSearchRepository.save(loaderProduct);
+		LOGGER.info("New Product index created: {}", loaderProduct.getName());
+	}
+	
+	private void removeCocktailIndexIfTransactionSuccess(Product product) {
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				LOGGER.info("Product by id=" + product.getId() + " removed from storage");
+				productSearchRepository.delete(product.getId());
+			}
+		});
+		
 	}
 }

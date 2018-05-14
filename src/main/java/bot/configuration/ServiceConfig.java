@@ -14,7 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 					"bot.session", 
 					"bot.main", 
 					"bot.service.impl", 
-					"bot.component.impl" })
+					"bot.component.impl"})
 @EnableAspectJAutoProxy
 public class ServiceConfig {
 

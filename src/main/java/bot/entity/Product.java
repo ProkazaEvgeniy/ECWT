@@ -15,6 +15,8 @@ import javax.persistence.Table;
 
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "product")
 @Document(indexName = "product")
@@ -27,6 +29,7 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 	private Long id;
 	private String name;
 	private String price;
+	@JsonIgnore
 	private String photo;
 	private String description;
 
@@ -36,7 +39,7 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 
 	// bi-directional many-to-one association to Category
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_category", referencedColumnName = "id")
+	@JoinColumn(name = "id_category", nullable = false)
 	private Category category;
 	// bi-directional many-to-one association to Userbot
 	@ManyToOne
