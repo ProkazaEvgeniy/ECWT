@@ -30,6 +30,7 @@ public interface AdminService {
 	@Nonnull EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotEnAfterBuy(@Nonnull long chat_id, int message_id);
+	@Nonnull EditMessageText answerBotEnAfterFindByCategory(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterBackToSell(@Nonnull long chat_id, int message_id, ProductForm productForm);
 	@Nonnull EditMessageText answerBotEnAfterBackToMainMenu(@Nonnull long chat_id, int message_id);
 	@Nonnull EditMessageText answerBotEnAfterCreateProduct(@Nonnull long chat_id, int message_id, ProductForm productForm);

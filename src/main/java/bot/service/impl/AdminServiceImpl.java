@@ -139,6 +139,21 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotEnAfterBuy " + mg.toString());
 		return mg;
 	}
+	
+	@Override
+	public EditMessageText answerBotEnAfterFindByCategory(long chat_id, int message_id) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Ok, you choose 'Find by category'. Please select category for search your product.");
+		InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+		//
+		allCategory(rowsInline);
+		// Add it to the message
+		markupInline.setKeyboard(rowsInline);
+		mg.setReplyMarkup(markupInline);
+		LOGGER.info("---------------> SendMessage answerBotEnAfterFindByCategory " + mg.toString());
+		return mg;
+	}
 
 	@Override
 	public EditMessageText answerBotEnAfterSell(long chat_id, int message_id, ProductForm productForm) {
@@ -382,18 +397,22 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
 		//
 		// Set the keyboard to the markup
-		for (Category category : findAllCategory()) {
-			List<InlineKeyboardButton> rowInline = new ArrayList<>();
-			rowInline.add(new InlineKeyboardButton().setText(category.getName().toUpperCase())
-					.setCallbackData(category.getUrl()));
-			rowsInline.add(rowInline);
-		}
+		allCategory(rowsInline);
 		//
 		rowInline1.add(new InlineKeyboardButton().setText("<- Back").setCallbackData("back_to_sell"));
 		rowInline1.add(new InlineKeyboardButton().setText("+ Add category").setCallbackData("add_category"));
 		rowsInline.add(rowInline1);
 		markupInline.setKeyboard(rowsInline);
 		return markupInline;
+	}
+	
+	private void allCategory(List<List<InlineKeyboardButton>> rowsInline) {
+		for (Category category : findAllCategory()) {
+			List<InlineKeyboardButton> rowInline = new ArrayList<>();
+			rowInline.add(new InlineKeyboardButton().setText(category.getName().toUpperCase())
+					.setCallbackData(category.getUrl()));
+			rowsInline.add(rowInline);
+		}
 	}
 
 	@Override

@@ -34,16 +34,17 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 	private String description;
 
 	@Column(name = "has_sell")
-	private Boolean has_sell;
+	private Boolean hasSell;
 	private Integer rating;
 
 	// bi-directional many-to-one association to Category
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_category", nullable = false)
+	@JoinColumn(name = "id_category", referencedColumnName = "id")
 	private Category category;
 	// bi-directional many-to-one association to Userbot
 	@ManyToOne
 	@JoinColumn(name = "id_userbot", referencedColumnName = "id_t")
+	@JsonIgnore
 	private Userbot userbot;
 
 	public Product() {
@@ -97,12 +98,12 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 		this.userbot = userbot;
 	}
 
-	public Boolean getHas_sell() {
-		return has_sell;
+	public Boolean getHasSell() {
+		return hasSell;
 	}
 
-	public void setHas_sell(Boolean has_sell) {
-		this.has_sell = has_sell;
+	public void setHasSell(Boolean hasSell) {
+		this.hasSell = hasSell;
 	}
 
 	public Integer getRating() {
@@ -127,7 +128,7 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 		int result = super.hashCode();
 		result = prime * result + ((category == null) ? 0 : category.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((has_sell == null) ? 0 : has_sell.hashCode());
+		result = prime * result + ((hasSell == null) ? 0 : hasSell.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((photo == null) ? 0 : photo.hashCode());
@@ -156,10 +157,10 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 				return false;
 		} else if (!description.equals(other.description))
 			return false;
-		if (has_sell == null) {
-			if (other.has_sell != null)
+		if (hasSell == null) {
+			if (other.hasSell != null)
 				return false;
-		} else if (!has_sell.equals(other.has_sell))
+		} else if (!hasSell.equals(other.hasSell))
 			return false;
 		if (id == null) {
 			if (other.id != null)
@@ -197,8 +198,8 @@ public class Product extends AbstractEntity<Long> implements Serializable {
 	@Override
 	public String toString() {
 		return String.format(
-				"Product [id=%s, name=%s, price=%s, photo=%s, description=%s, userbot=%s, has_sell=%s, rating=%s, category=%s]",
-				id, name, price, photo, description, userbot, has_sell, rating, category);
+				"Product [id=%s, name=%s, price=%s, photo=%s, description=%s, hasSell=%s, rating=%s, category=%s, userbot=%s]",
+				id, name, price, photo, description, hasSell, rating, category, userbot);
 	}
 
 }

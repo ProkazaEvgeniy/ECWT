@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 @Configuration
 @PropertySource("classpath:properties/elasticsearch.properties")
-@EnableElasticsearchRepositories(basePackages = "bot/repository/search")
+@EnableElasticsearchRepositories(basePackages = "bot.repository.search")
 public class ElasticSearchConfig {
 	
 	@Autowired

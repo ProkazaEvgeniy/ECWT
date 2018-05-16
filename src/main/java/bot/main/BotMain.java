@@ -165,6 +165,18 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					answerBotEnAfterBuy(session, chat_id, message_id);
 				}
 				/*
+				 * call_data is 'find_by_name_or_description'
+				 */
+				if (call_data.equals("find_by_name_or_description")) {
+					
+				}
+				/*
+				 * call_data is 'find_by_category'
+				 */
+				if (call_data.equals("find_by_category")) {
+					answerBotEnAfterFindByCategory(session, chat_id, message_id);
+				}
+				/*
 				 * call_data is 'sell'
 				 */
 				if (call_data.equals("sell")) {
@@ -558,7 +570,15 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 
 	private void answerBotEnAfterBuy(Session session, long chat_id, int message_id) {
 		try {
-			execute(session.answerBotEnAfterBuy(chat_id, message_id, session.getProductForm()));
+			execute(session.answerBotEnAfterBuy(chat_id, message_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void answerBotEnAfterFindByCategory(Session session, long chat_id, int message_id) {
+		try {
+			execute(session.answerBotEnAfterFindByCategory(chat_id, message_id));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}

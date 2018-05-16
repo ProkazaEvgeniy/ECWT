@@ -99,8 +99,12 @@ public class Session {
 		return adminService.answerBotAfterChooseLanguageEnBuyOrSell(chat_id, message_id);
 	}
 	
-	public EditMessageText answerBotEnAfterBuy(long chat_id, int message_id, ProductForm productForm) {
+	public EditMessageText answerBotEnAfterBuy(long chat_id, int message_id) {
 		return adminService.answerBotEnAfterBuy(chat_id, message_id);
+	}
+	
+	public EditMessageText answerBotEnAfterFindByCategory(long chat_id, int message_id) {
+		return adminService.answerBotEnAfterFindByCategory(chat_id, message_id);
 	}
 	
 	public EditMessageText answerBotEnAfterSell(long chat_id, int message_id, ProductForm productForm) {
