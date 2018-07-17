@@ -94,6 +94,10 @@ public class Session {
 	public SendMessage answerBotEnAfterAddCategory(long chat_id) {
 		return adminService.answerBotEnAfterAddCategory(chat_id);
 	}
+	
+	public SendMessage answerBotEnAfterPhotoErorr(long chat_id) {
+		return adminService.answerBotEnAfterPhotoErorr(chat_id);
+	}
 
 	public EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(long chat_id, int message_id) {
 		return adminService.answerBotAfterChooseLanguageEnBuyOrSell(chat_id, message_id);

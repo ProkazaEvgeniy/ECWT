@@ -362,8 +362,12 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					 * hasPhotoProductAnswer
 					 */
 					else if (session.hasPhotoProductAnswer()) {
-						proccesInstanceProductFormSetPhoto(session, photo);
-						answerForBackToSellMenu(session, chat_id);
+						if(photo != null) {
+							proccesInstanceProductFormSetPhoto(session, photo);
+							answerForBackToSellMenu(session, chat_id);							
+						} else {
+							answerBotEnAfterPhotoErorr(session, chat_id);
+						}
 					}
 					/*
 					 * hasDescriptionProductAnswer
@@ -643,6 +647,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	private void answerBotEnAfterAddCategory(Session session, long chat_id) {
 		try {
 			execute(session.answerBotEnAfterAddCategory(chat_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void answerBotEnAfterPhotoErorr(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterPhotoErorr(chat_id));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}

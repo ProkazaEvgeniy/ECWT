@@ -363,6 +363,14 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotEnAfterPhoto " + mg.toString());
 		return mg;
 	}
+	
+	
+	@Override
+	public SendMessage answerBotEnAfterPhotoErorr (long chat_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Why do I need it? I need a photo. Please.");
+		LOGGER.info("---------------> SendMessage answerBotEnAfterPhotoErorr " + mg.toString());
+		return mg;
+	}
 
 	@Override
 	public EditMessageText answerBotEnAfterDescription(long chat_id, int message_id) {
