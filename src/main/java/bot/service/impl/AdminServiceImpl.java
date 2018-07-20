@@ -1,5 +1,6 @@
 package bot.service.impl;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -23,6 +25,7 @@ import bot.repository.storage.CategoryRepository;
 import bot.repository.storage.ProductRepository;
 import bot.repository.storage.UserbotRepository;
 import bot.service.AdminService;
+import bot.service.ImageStorageService;
 import bot.session.CategoryForm;
 import bot.session.ProductForm;
 import bot.session.ProductFormToCheckAdmin;
@@ -41,6 +44,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	private ProductSearchRepository productSearchRepository;
 	@Autowired
 	private CategoryRepository categoryRepository;
+	@Autowired
+	private ImageStorageService imageStorageService;
 
 	/*
 	 * commands
@@ -55,7 +60,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
 		//
 		rowInline1.add(new InlineKeyboardButton().setText("English").setCallbackData("/en"));
-		rowInline2.add(new InlineKeyboardButton().setText("Russian").setCallbackData("/ru"));
+		// rowInline2.add(new
+		// InlineKeyboardButton().setText("Russian").setCallbackData("/ru"));
 		// Set the keyboard to the markup
 		rowsInline.add(rowInline1);
 		rowsInline.add(rowInline2);
@@ -105,7 +111,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
 		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
 		//
-		rowInline1.add(new InlineKeyboardButton().setText("Buy").setCallbackData("buy"));
+		// rowInline1.add(new
+		// InlineKeyboardButton().setText("Buy").setCallbackData("buy"));
 		rowInline2.add(new InlineKeyboardButton().setText("Sell").setCallbackData("sell"));
 		// Set the keyboard to the markup
 		rowsInline.add(rowInline1);
@@ -126,7 +133,8 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
 		List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
 		//
-		rowInline1.add(new InlineKeyboardButton().setText("Find by name or description").setCallbackData("find_by_name_or_description"));
+		rowInline1.add(new InlineKeyboardButton().setText("Find by name or description")
+				.setCallbackData("find_by_name_or_description"));
 		rowInline2.add(new InlineKeyboardButton().setText("Find by category").setCallbackData("find_by_category"));
 		rowInline3.add(new InlineKeyboardButton().setText("<- Back menu").setCallbackData("back_to_main_menu"));
 		// Set the keyboard to the markup
@@ -139,7 +147,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		LOGGER.info("---------------> SendMessage answerBotEnAfterBuy " + mg.toString());
 		return mg;
 	}
-	
+
 	@Override
 	public EditMessageText answerBotEnAfterFindByCategory(long chat_id, int message_id) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
@@ -159,6 +167,21 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	public EditMessageText answerBotEnAfterSell(long chat_id, int message_id, ProductForm productForm) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
 				.setText("Ok, you choose sell. Please input data product");
+		
+		mg.setReplyMarkup(dataToSELL(productForm));
+		LOGGER.info("---------------> SendMessage answerBotEnAfterSell " + mg.toString());
+		return mg;
+	}
+	
+	@Override
+	public SendMessage answerBotEnAfterSell(long chat_id, ProductForm productForm) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Ok, you choose sell. Please input data product");
+		mg.setReplyMarkup(dataToSELL(productForm));
+		LOGGER.info("---------------> SendMessage answerBotEnAfterSell " + mg.toString());
+		return mg;
+	}
+	
+	private InlineKeyboardMarkup dataToSELL(ProductForm productForm) {
 		InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
 		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 		//
@@ -178,7 +201,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		rowInline5.add(new InlineKeyboardButton().setText("Category" + getCategoryName(productForm))
 				.setCallbackData("category"));
 		rowInline6.add(new InlineKeyboardButton().setText("<- Back menu").setCallbackData("back_to_main_menu"));
-		rowInline6.add(new InlineKeyboardButton().setText("Create").setCallbackData("create_product"));
+		rowInline6.add(new InlineKeyboardButton().setText("Create product").setCallbackData("create_product"));
 		// Set the keyboard to the markup
 		rowsInline.add(rowInline1);
 		rowsInline.add(rowInline2);
@@ -188,9 +211,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		rowsInline.add(rowInline6);
 		// Add it to the message
 		markupInline.setKeyboard(rowsInline);
-		mg.setReplyMarkup(markupInline);
-		LOGGER.info("---------------> SendMessage answerBotEnAfterSell " + mg.toString());
-		return mg;
+		return markupInline;
 	}
 
 	private String getName(ProductForm productForm) {
@@ -204,7 +225,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 
 	private String getPhoto(ProductForm productForm) {
-		String text = productForm.getPhoto();
+		String text = productForm.getPhotoImageLink();
 		return text != null ? " - " + text : "";
 	}
 
@@ -284,16 +305,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 
 	@Override
 	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
-		SendMessage mg = new SendMessage().setChatId(chat_id).setText(productForm.toString());
-		mg.setReplyMarkup(OK_NO_created_SaveToDB_InlineKeyboardMarkup());
-		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin " + mg.toString());
-		return mg;
-	}
-	
-	@Override
-	public EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id,
-			ProductForm productForm) {
-		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id).setText(productForm.toString());
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText(productForm.toString_admin());
 		mg.setReplyMarkup(OK_NO_created_SaveToDB_InlineKeyboardMarkup());
 		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin " + mg.toString());
 		return mg;
@@ -315,9 +327,9 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 
 	@Override
-	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id, ProductForm productForm) {
+	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText("Your product sent Admin check to validate");
+				.setText("Your product sent Admin check for to validate");
 		LOGGER.info("---------------> SendMessage answerBotEnAfterOKCreateProduct " + mg.toString());
 		return mg;
 	}
@@ -333,8 +345,9 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	}
 
 	@Override
-	public SendMessage answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
-		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Your product has created. Find him across BUY");
+	public SendMessage answerOkToCreateProductFromAdmin(long chat_id, String name) {
+		SendMessage mg = new SendMessage().setChatId(chat_id)
+				.setText("Success! Your product " + "'" + name.toUpperCase() + "'" + " has created. Find him via 'BUY'");
 		mg.setReplyMarkup(BUY_SELL());
 		LOGGER.info("---------------> SendMessage answerOkToCreateProductFromAdmin " + mg.toString());
 		return mg;
@@ -343,7 +356,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	@Override
 	public EditMessageText answerBotEnAfterNameProduct(long chat_id, int message_id) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText("Ok! Please input Name Product");
+				.setText("Ok! Please input a name product");
 		LOGGER.info("---------------> SendMessage answerBotEnAfterNameProduct " + mg.toString());
 		return mg;
 	}
@@ -351,7 +364,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	@Override
 	public EditMessageText answerBotEnAfterPrice(long chat_id, int message_id) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText("Ok! Please input Price");
+				.setText("Ok! Please input a price, for example '100 euro' or '100 dollar'");
 		LOGGER.info("---------------> SendMessage answerBotEnAfterPrice " + mg.toString());
 		return mg;
 	}
@@ -359,16 +372,39 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	@Override
 	public EditMessageText answerBotEnAfterPhoto(long chat_id, int message_id) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
-				.setText("Ok! Please send Photo");
+				.setText("Ok! Please send a photo");
 		LOGGER.info("---------------> SendMessage answerBotEnAfterPhoto " + mg.toString());
 		return mg;
 	}
-	
-	
+
 	@Override
-	public SendMessage answerBotEnAfterPhotoErorr (long chat_id) {
+	public SendMessage answerBotEnAfterPhotoErorr(long chat_id) {
 		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Why do I need it? I need a photo. Please.");
 		LOGGER.info("---------------> SendMessage answerBotEnAfterPhotoErorr " + mg.toString());
+		return mg;
+	}
+
+	@Override
+	public SendMessage answerBotEnAfterTextNameErorr(long chat_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id)
+				.setText("Why do I need it? I need a text. Please write me a name product.");
+		LOGGER.info("---------------> SendMessage answerBotEnAfterTextNameErorr " + mg.toString());
+		return mg;
+	}
+
+	@Override
+	public SendMessage answerBotEnAfterTextPriceErorr(long chat_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText(
+				"Why do I need it? I need a text. Please write me a price product. For example '100 euro' or '100 dollar'");
+		LOGGER.info("---------------> SendMessage answerBotEnAfterTextPriceErorr " + mg.toString());
+		return mg;
+	}
+
+	@Override
+	public SendMessage answerBotEnAfterTextDescriptionErorr(long chat_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id)
+				.setText("Why do I need it? I need a text. Please write me a description product.");
+		LOGGER.info("---------------> SendMessage answerBotEnAfterTextDescriptionErorr " + mg.toString());
 		return mg;
 	}
 
@@ -384,6 +420,14 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	public EditMessageText answerBotEnAfterCategory(long chat_id, int message_id) {
 		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
 				.setText("Ok! Please choose category to product");
+		mg.setReplyMarkup(allCategoryToInline());
+		LOGGER.info("---------------> SendMessage answerBotEnAfterCategory " + mg.toString());
+		return mg;
+	}
+	
+	@Override
+	public SendMessage answerBotEnAfterCategory(long chat_id) {
+		SendMessage mg = new SendMessage().setChatId(chat_id).setText("Ok! Please choose category to product");
 		mg.setReplyMarkup(allCategoryToInline());
 		LOGGER.info("---------------> SendMessage answerBotEnAfterCategory " + mg.toString());
 		return mg;
@@ -413,7 +457,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		markupInline.setKeyboard(rowsInline);
 		return markupInline;
 	}
-	
+
 	private void allCategory(List<List<InlineKeyboardButton>> rowsInline) {
 		for (Category category : findAllCategory()) {
 			List<InlineKeyboardButton> rowInline = new ArrayList<>();
@@ -429,6 +473,37 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 				.setText("Ok! Write category name");
 		LOGGER.info("---------------> SendMessage answerBotEnAfterAddCategory " + mg.toString());
 		return mg;
+	}
+
+	@Override
+	public EditMessageText answerBotEnDeleteMassage(long chat_id, int message_id) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Message delete!");
+		LOGGER.info("---------------> SendMessage answerBotEnDeleteMassage " + mg.toString());
+		return mg;
+	}
+	
+	
+	public EditMessageText answerBotEnDeletePhoto(long chat_id, int message_id) {
+		EditMessageText mg = new EditMessageText().setChatId(chat_id).setMessageId(message_id)
+				.setText("Message delete!");
+		LOGGER.info("---------------> SendMessage answerBotEnDeleteMassage " + mg.toString());
+		return mg;
+	}
+
+	@Override
+	public SendPhoto answerBotEnSendPhoto(long chat_id, ProductForm productForm) throws FileNotFoundException {
+		java.io.File file = getFileImage(productForm.getPhotoImageLink());
+		SendPhoto sendPhoto = new SendPhoto();
+		sendPhoto.setChatId(Long.valueOf(chat_id));
+		sendPhoto.setNewPhoto(file);
+		sendPhoto.setCaption(productForm.toString());
+		sendPhoto.setReplyMarkup(OK_NO_created_InlineKeyboardMarkup());
+		return sendPhoto;
+	}
+
+	public java.io.File getFileImage(String imageLink) throws FileNotFoundException {
+		return imageStorageService.getFileImage(imageLink);
 	}
 
 	/*
@@ -475,7 +550,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		productRepository.delete(product);
 		removeCocktailIndexIfTransactionSuccess(product);
 	}
-	
+
 	@Override
 	public Product findByPhoto(String photo) {
 		return productRepository.findByPhoto(photo);
@@ -523,7 +598,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 	public Category findByUrl(String text) {
 		return categoryRepository.findByUrl(text);
 	}
-	
+
 	/*
 	 * 
 	 * */
@@ -533,7 +608,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		Iterable<Product> all = productRepository.findAll();
 		return all;
 	}
-	
+
 	protected void updateIndexProductData(Long idProduct, Product loaderProduct) {
 		Product p = productRepository.findOne(idProduct);
 		if (p == null) {
@@ -548,7 +623,7 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 		productSearchRepository.save(loaderProduct);
 		LOGGER.info("New Product index created: {}", loaderProduct.getName());
 	}
-	
+
 	private void removeCocktailIndexIfTransactionSuccess(Product product) {
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
 			@Override
@@ -557,6 +632,6 @@ public class AdminServiceImpl extends AbstractCreateAdminServiceImpl implements 
 				productSearchRepository.delete(product.getId());
 			}
 		});
-		
+
 	}
 }

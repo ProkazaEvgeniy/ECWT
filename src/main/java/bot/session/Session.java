@@ -2,6 +2,7 @@ package bot.session;
 
 import static bot.constant.Constants.UIImageType.PRODUCT;
 
+import java.io.FileNotFoundException;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 
 import bot.entity.Category;
@@ -75,8 +77,8 @@ public class Session {
 		return adminService.answerAnythingTextToCallbackQuery(chat_id, message_id_previous);
 	}
 	
-	public SendMessage answerOkToCreateProductFromAdmin(long chat_id, int message_id) {
-		return adminService.answerOkToCreateProductFromAdmin(chat_id, message_id);
+	public SendMessage answerOkToCreateProductFromAdmin(long chat_id, String name) {
+		return adminService.answerOkToCreateProductFromAdmin(chat_id, name);
 	}
 	
 	public SendMessage answerNoToCreateProductFromAdmin(long chat_id, int message_id) {
@@ -98,7 +100,19 @@ public class Session {
 	public SendMessage answerBotEnAfterPhotoErorr(long chat_id) {
 		return adminService.answerBotEnAfterPhotoErorr(chat_id);
 	}
-
+	
+	public SendMessage answerBotEnAfterTextNameErorr(long chat_id) {
+		return adminService.answerBotEnAfterTextNameErorr(chat_id);
+	}
+	
+	public SendMessage answerBotEnAfterTextPriceErorr(long chat_id) {
+		return adminService.answerBotEnAfterTextPriceErorr(chat_id);
+	}
+	
+	public SendMessage answerBotEnAfterTextDescriptionErorr(long chat_id) {
+		return adminService.answerBotEnAfterTextDescriptionErorr(chat_id);
+	}
+	
 	public EditMessageText answerBotAfterChooseLanguageEnBuyOrSell(long chat_id, int message_id) {
 		return adminService.answerBotAfterChooseLanguageEnBuyOrSell(chat_id, message_id);
 	}
@@ -113,6 +127,10 @@ public class Session {
 	
 	public EditMessageText answerBotEnAfterSell(long chat_id, int message_id, ProductForm productForm) {
 		return adminService.answerBotEnAfterSell(chat_id, message_id, productForm);
+	}
+	
+	public SendMessage answerBotEnAfterSell(long chat_id, ProductForm productForm) {
+		return adminService.answerBotEnAfterSell(chat_id, productForm);
 	}
 
 	public EditMessageText answerBotEnAfterBackToSell(long chat_id, int message_id, ProductForm productForm) {
@@ -130,13 +148,9 @@ public class Session {
 	public SendMessage answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, ProductForm productForm) {
 		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, productForm);
 	}
-	
-	public EditMessageText answerBotEnAfterOKCreateProduct_To_CheckAdmin(long chat_id, int message_id, ProductForm productForm) {
-		return adminService.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, productForm);
-	}
 
-	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id, ProductForm productForm) {
-		return adminService.answerBotEnAfterOKCreateProduct(chat_id, message_id, productForm);
+	public EditMessageText answerBotEnAfterOKCreateProduct(long chat_id, int message_id) {
+		return adminService.answerBotEnAfterOKCreateProduct(chat_id, message_id);
 	}
 
 	public EditMessageText answerBotEnAfterNOCreateProduct(long chat_id, int message_id, ProductForm productForm) {
@@ -163,12 +177,24 @@ public class Session {
 		return adminService.answerBotEnAfterCategory(chat_id, message_id);
 	}
 
+	public SendMessage answerBotEnAfterCategory(long chat_id) {
+		return adminService.answerBotEnAfterCategory(chat_id);
+	}
+	
 	public EditMessageText answerBotEnAfterChooseCategory(long chat_id, int message_id) {
 		return adminService.answerBotEnAfterChooseCategory(chat_id, message_id);
 	}
 
 	public EditMessageText answerBotEnAfterAddCategory(long chat_id, int message_id) {
 		return adminService.answerBotEnAfterAddCategory(chat_id, message_id);
+	}
+	
+	public SendPhoto answerBotEnSendPhoto(long chat_id, ProductForm productForm) throws FileNotFoundException {
+		return adminService.answerBotEnSendPhoto(chat_id, productForm);
+	}
+	
+	public EditMessageText answerBotEnDeleteMassage(long chat_id, int message_id) {
+		return adminService.answerBotEnDeleteMassage(chat_id, message_id);
 	}
 
 	/*
@@ -384,7 +410,7 @@ public class Session {
 
 	public boolean hasCompleteProductForm() {
 		return getProductForm().getName() != null && getProductForm().getPrice() != null
-				&& getProductForm().getPhoto() != null && getProductForm().getDescription() != null
+				&& getProductForm().getPhotoImageLink() != null && getProductForm().getDescription() != null
 				&& getProductForm().getCategory() != null;
 	}
 	

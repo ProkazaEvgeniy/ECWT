@@ -1,5 +1,6 @@
 package bot.main;
 
+import java.io.FileNotFoundException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -113,9 +114,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 	/* impotent element */
-	
-	
-	
+
 	/*
 	 * End Settings application
 	 */
@@ -168,7 +167,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				 * call_data is 'find_by_name_or_description'
 				 */
 				if (call_data.equals("find_by_name_or_description")) {
-					
+
 				}
 				/*
 				 * call_data is 'find_by_category'
@@ -201,6 +200,8 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 				if (call_data.equals("create_product")) {
 					if (session.hasCompleteProductForm()) {
 						answerBotEnAfterCreateProduct(session, chat_id, message_id);
+						//answerBotEnDeleteMassage(session, chat_id, message_id);
+						//answerBotEnSendPhoto(session, chat_id);
 					} else {
 						answerForNoCompleteProductForm(session, chat_id, message_id);
 					}
@@ -215,7 +216,9 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 						answerBotEnAfterOKCreateProduct(session, chat_id, message_id);
 						answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id_admin);
 					} else {
-						answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id_admin, message_id);
+						//to delete sendPhoto
+						
+						answerBotEnAfterOKCreateProduct_To_CheckAdmin(session, chat_id_admin);
 					}
 					setNullToProductForm(session);
 				}
@@ -290,7 +293,8 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		 */
 		if (call_data.equals("ok_created_db")) {
 			long chat_id_answer = proccesSaveProductToBD(session);
-			answerOkToCreateProductFromAdmin(session, chat_id_answer, message_id);
+
+			answerOkToCreateProductFromAdmin(session, chat_id_answer);
 			setNullToProductFormToCheckAdmin(session);
 		}
 		/*
@@ -300,7 +304,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			long chat_id_answer = getLongIdToAnswerUserbot(session);
 			answerNoToCreateProductFromAdmin(session, chat_id_answer, message_id);
 			setNullToProductFormToCheckAdmin(session);
-		}		
+		}
 		/*
 		 * 
 		 * */
@@ -322,12 +326,12 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		if (message.hasText()) {
 			text = message.getText();
 		}
-		PhotoSize photo = null;
+		PhotoSize photoSize = null;
 		if (message.hasPhoto()) {
-			photo = message.getPhoto().get(1);
+			photoSize = message.getPhoto().get(1);
 		}
 		if (message.hasDocument()) {
-			photo = message.getDocument().getThumb();
+			photoSize = message.getDocument().getThumb();
 		}
 		long chat_id = message.getChatId();
 		int message_id_previous = message.getMessageId() - 1;
@@ -348,23 +352,31 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					 * hasNameProductAnswer
 					 */
 					if (session.hasNameProductAnswer()) {
-						proccesInstanceProductFormSetName(session, text);
-						answerForBackToSellMenu(session, chat_id);
+						if (text != null) {
+							proccesInstanceProductFormSetName(session, text);
+							answerForBackToSellMenu(session, chat_id);
+						} else {
+							answerBotEnAfterTextNameErorr(session, chat_id);
+						}
 					}
 					/*
 					 * hasPriceProductAnswer
 					 */
 					else if (session.hasPriceProductAnswer()) {
-						proccesInstanceProductFormSetPrice(session, text);
-						answerForBackToSellMenu(session, chat_id);
+						if (text != null) {
+							proccesInstanceProductFormSetPrice(session, text);
+							answerForBackToSellMenu(session, chat_id);
+						} else {
+							answerBotEnAfterTextPriceErorr(session, chat_id);
+						}
 					}
 					/*
 					 * hasPhotoProductAnswer
 					 */
 					else if (session.hasPhotoProductAnswer()) {
-						if(photo != null) {
-							proccesInstanceProductFormSetPhoto(session, photo);
-							answerForBackToSellMenu(session, chat_id);							
+						if (photoSize != null) {
+							proccesInstanceProductFormSetPhoto(session, photoSize);
+							answerForBackToSellMenu(session, chat_id);
 						} else {
 							answerBotEnAfterPhotoErorr(session, chat_id);
 						}
@@ -373,8 +385,12 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					 * hasDescriptionProductAnswer
 					 */
 					else if (session.hasDescriptionProductAnswer()) {
-						proccesInstanceProductFormSetDescription(session, text);
-						answerForBackToSellMenu(session, chat_id);
+						if (text != null) {
+							proccesInstanceProductFormSetDescription(session, text);
+							answerForBackToSellMenu(session, chat_id);
+						} else {
+							answerBotEnAfterTextDescriptionErorr(session, chat_id);
+						}
 					}
 					/*
 					 * hasCategoryProductAnswer
@@ -382,15 +398,24 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 					else if (session.hasCategoryProductAnswer()) {
 						if (session.hasAddCategoryProductAnswer()) {
 							proccesInstanceProductFormSetAddCategory(session, text, chat_id);
+						} else {
+							answerBotEnDeleteMassage(session, chat_id, message_id_previous);
+							answerBotEnAfterCategory(session, chat_id);
 						}
 					}
 					/*
 					 * stub
 					 */
 					else {
-						stub(session, chat_id, message_id_previous);
+						stub_after_SELL(session, chat_id, message_id_previous);
 					}
 
+				}
+				/*
+				 * stub
+				 */
+				else {
+					stub(session, chat_id, message_id_previous);
 				}
 			}
 			/*
@@ -476,9 +501,9 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 
-	private void answerOkToCreateProductFromAdmin(Session session, long chat_id, int message_id) {
+	private void answerOkToCreateProductFromAdmin(Session session, long chat_id) {
 		try {
-			execute(session.answerOkToCreateProductFromAdmin(chat_id, message_id));
+			execute(session.answerOkToCreateProductFromAdmin(chat_id, productFormToCheckAdmin.getName()));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
@@ -547,18 +572,10 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			e.printStackTrace();
 		}
 	}
-	
-	private void answerBotEnAfterOKCreateProduct_To_CheckAdmin(Session session, long chat_id, int message_id) {
-		try {
-			execute(session.answerBotEnAfterOKCreateProduct_To_CheckAdmin(chat_id, message_id, session.getProductForm()));
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
-	}
 
 	private void answerBotEnAfterOKCreateProduct(Session session, long chat_id, int message_id) {
 		try {
-			execute(session.answerBotEnAfterOKCreateProduct(chat_id, message_id, session.getProductForm()));
+			execute(session.answerBotEnAfterOKCreateProduct(chat_id, message_id));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
@@ -579,7 +596,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void answerBotEnAfterFindByCategory(Session session, long chat_id, int message_id) {
 		try {
 			execute(session.answerBotEnAfterFindByCategory(chat_id, message_id));
@@ -591,6 +608,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	private void answerBotEnAfterSell(Session session, long chat_id, int message_id) {
 		try {
 			execute(session.answerBotEnAfterSell(chat_id, message_id, session.getProductForm()));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void answerBotEnAfterSell(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterSell(chat_id, session.getProductForm()));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
@@ -635,6 +660,14 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			e.printStackTrace();
 		}
 	}
+	
+	private void answerBotEnAfterCategory(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterCategory(chat_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void answerBotEnAfterChooseCategory(Session session, long chat_id, int message_id) {
 		try {
@@ -651,7 +684,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void answerBotEnAfterPhotoErorr(Session session, long chat_id) {
 		try {
 			execute(session.answerBotEnAfterPhotoErorr(chat_id));
@@ -660,9 +693,51 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		}
 	}
 
+	private void answerBotEnAfterTextNameErorr(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterTextNameErorr(chat_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void answerBotEnAfterTextPriceErorr(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterTextPriceErorr(chat_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void answerBotEnAfterTextDescriptionErorr(Session session, long chat_id) {
+		try {
+			execute(session.answerBotEnAfterTextDescriptionErorr(chat_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void answerBotEnAfterAddCategory(Session session, long chat_id, int message_id) {
 		try {
 			execute(session.answerBotEnAfterAddCategory(chat_id, message_id));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void answerBotEnSendPhoto(Session session, long chat_id) {
+		try {
+			sendPhoto(session.answerBotEnSendPhoto(chat_id, session.getProductForm()));
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void answerBotEnDeleteMassage(Session session, long chat_id, int message_id) {
+		try {
+			execute(session.answerBotEnDeleteMassage(chat_id, message_id));
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
@@ -711,7 +786,7 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 	private void proccesInstanceProductFormSetPhoto(Session session, PhotoSize photo) {
 		java.io.File tempImageFile = downloadPhotoByFilePath(getFilePath(photo));
 		String imageLink = session.processNewProductPhoto(tempImageFile);
-		session.getProductForm().setPhoto(imageLink);
+		session.getProductForm().setPhotoImageLink(imageLink);
 		session.setPhotoProductAnswerNull();
 	}
 
@@ -744,7 +819,6 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
 		}
-
 		return null;
 	}
 
@@ -825,6 +899,12 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		answerAnythingTextToCallbackQuery(session, chat_id, message_id_previous);
 		answerStartCallbackQuery(session, chat_id);
 	}
+	
+	private void stub_after_SELL(Session session, long chat_id, int message_id_previous) {
+		answerAnythingTextToCallbackQuery(session, chat_id, message_id_previous);
+		answerBotEnAfterSell(session, chat_id);
+	}
+
 	/*
 	 * created model ProductFormToCheckAdmin
 	 */
@@ -840,13 +920,13 @@ public class BotMain extends TelegramLongPollingBot implements ApplicationContex
 		setProductFormToCheckAdmin(new ProductFormToCheckAdmin());
 		LOGGER.info("****************** ProductFormToCheckAdmin");
 	}
-	
+
 	public void copyProductFormToProductFormToCheckAdmin(Session session) {
 		ProductForm productForm = session.getProductForm();
 		ProductFormToCheckAdmin productFormToCheckAdmin = getProductFormToCheckAdmin();
 		productFormToCheckAdmin.setName(productForm.getName());
 		productFormToCheckAdmin.setPrice(productForm.getPrice());
-		productFormToCheckAdmin.setPhoto(productForm.getPhoto());
+		productFormToCheckAdmin.setPhoto(productForm.getPhotoImageLink());
 		productFormToCheckAdmin.setDescription(productForm.getDescription());
 		productFormToCheckAdmin.setCategory(productForm.getCategory());
 		productFormToCheckAdmin.setUserbot(productForm.getUserbot());

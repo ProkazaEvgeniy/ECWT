@@ -19,7 +19,7 @@ public class ProductForm {
 	
 	private String name;
 	private String price;
-	private String photo;
+	private String photoImageLink;
 	private String description;
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id_category", nullable = false)
@@ -31,11 +31,11 @@ public class ProductForm {
 		super();
 		LOGGER.info("********************* ProductForm created");
 	}
-	public ProductForm(String name, String price, String photo, String description) {
+	public ProductForm(String name, String price, String photoImageLink, String description) {
 		super();
 		this.name = name;
 		this.price = price;
-		this.photo = photo;
+		this.photoImageLink = photoImageLink;
 		this.description = description;
 		LOGGER.info("********************* ProductForm created whith fields");
 	}
@@ -51,11 +51,11 @@ public class ProductForm {
 	public void setPrice(String price) {
 		this.price = price;
 	}
-	public String getPhoto() {
-		return photo;
+	public String getPhotoImageLink() {
+		return photoImageLink;
 	}
-	public void setPhoto(String photo) {
-		this.photo = photo;
+	public void setPhotoImageLink(String photo) {
+		this.photoImageLink = photo;
 	}
 	public String getDescription() {
 		return description;
@@ -77,8 +77,12 @@ public class ProductForm {
 	}
 	@Override
 	public String toString() {
-		return String.format("ProductForm [name=%s, price=%s, photo=%s, description=%s, category=%s, userbot=%s]", name,
-				price, photo, description, category, userbot);
+		return String.format("%s"+"\n"+"%s"+"\n"+"%s", name.toUpperCase(), price, category.getName());
+	}
+	
+	public String toString_admin() {
+		return String.format("name=%s"+"\n"+"price=%s"+"\n"+"description=%s"+"\n"+"category=%s"+"\n"+"userbot=%s_%s_%s", name,
+				price, description, category.getName(), userbot.getFirstName(), userbot.getLastName(), userbot.getUserName());
 	}
 	
 }

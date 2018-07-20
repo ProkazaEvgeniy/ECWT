@@ -7,4 +7,6 @@ import bot.entity.Product;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
 	Product findByPhoto(String photo);
+	
+	
 }

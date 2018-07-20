@@ -47,7 +47,7 @@ public abstract class AbstractCreateAdminServiceImpl {
 	protected void setNullToProductFormSuper (ProductForm productForm) {
 		productForm.setName(null);
 		productForm.setPrice(null);
-		productForm.setPhoto(null);
+		productForm.setPhotoImageLink(null);
 		productForm.setDescription(null);
 		productForm.setCategory(null);
 		LOGGER.info("***************************  setNull To ProductForm Super");

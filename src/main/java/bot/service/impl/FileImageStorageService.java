@@ -1,5 +1,7 @@
 package bot.service.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,12 +35,40 @@ public class FileImageStorageService implements ImageStorageService {
 		}
 	}
 
+	@Override
+	public java.io.File getFileImage(String imageLink) throws FileNotFoundException{
+		String pathname = getImageLinkFile(imageLink);
+		isExists(pathname);
+		java.io.File file = new File(pathname);
+		return file;
+	}
+	
 	protected String getImageLink(String folderName, String imageName) {
 		return "/media/" + folderName + "/" + imageName;
 	}
 
 	protected Path getDestinationImageFile(String imageLink) {
 		return Paths.get(root + imageLink);
+	}
+	
+	protected String getImageLinkFile(String imageLink) {
+		return root + imageLink;
+	}
+	
+	protected byte[] getBytesFileImage(String imageLink){
+		Path path = getDestinationImageFile(imageLink);
+		try {
+			return Files.readAllBytes(path);
+		} catch (IOException e) {
+			throw new CantCompleteClientRequestException("Can't readAllBytes in method getFileImage(): " + e.getMessage(), e);
+		}
+	}
+	
+	private void isExists(String pathname) throws FileNotFoundException {
+		File file = new File(pathname);
+		if (!file.exists()) {
+			throw new FileNotFoundException(file.getName());
+		}
 	}
 	
 	protected Path getSrcImageFile(java.io.File tempImageFile) {
